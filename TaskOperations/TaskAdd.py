@@ -144,12 +144,23 @@ async def get_priority(callback_query: CallbackQuery, state: FSMContext):
 
     tasks.update_dict(callback_query.from_user.id, {'priority': await kb.get_text_inline_button(callback_query)})
     
-    print(tasks.convert_to_json() + '\n')
     print(await get_info_for_add(callback_query, task))
+    print(tasks.convert_to_json() + '\n')
 
+
+    # async with aiohttp.ClientSession() as session:
+    #     async with session.post(API_URL, json=await get_info_for_add(callback_query, task)) as response:
+    #         await send_message_by_status_code_for_add(callback_query, response)
+    
+    
+    #TODO сделать await 
     async with aiohttp.ClientSession() as session:
-        async with session.post(API_URL, json=await get_info_for_add(callback_query, task)) as response:
+        async with session.post(API_URL, json=tasks.find_element_by_user_id(callback_query.from_user.id)) as response:
             await send_message_by_status_code_for_add(callback_query, response)
+
+
+
+
     await state.clear()
     await callback_query.message.delete()
     print(task.name, task.description, task.start_date, task.finish_date, task.priority)

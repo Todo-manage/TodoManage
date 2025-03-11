@@ -1,7 +1,7 @@
 import datetime
 import json
 
-class SaveTask:
+class SaveTask: # TODO сделать методы асинхронными, которые позволили бы большому кол-ству пользователей вводить данные
     def __init__(self):
         self.tasks = {str: {}}
         del self.tasks[str]
@@ -24,20 +24,6 @@ class SaveTask:
     def convert_to_json(self):
         return json.dumps(self.tasks, indent=4)
 
-    def print(self):
+    def print(self): # выводит все задачи которые есть
         for item in self.tasks.items():
             print(item)
-
-a = SaveTask()
-a.update_dict('1', {'user_id': '2'})
-a.update_dict('1', {'name': 'made tests for API'})
-a.update_dict('1', {'description': 'testing my API'})
-a.update_dict('1', {'priority': 9})
-
-a.update_dict('1', {'name': 'asd', 'start_date': str(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")),
-                    'finish_date': str(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"))})
-
-a.update_dict('2', {'uwiyer': 12})
-
-
-Tasks: SaveTask()
