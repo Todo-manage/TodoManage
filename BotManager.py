@@ -19,12 +19,12 @@ async def cmd_start(message: Message):
     await message.answer("Привет!",
                          reply_markup=kb.replyMarkup)
 
-@router.message(F.text == 'Добавить задачу')
+@router.message(F.text == 'Добавить задачу')# TODO надо подумать как попадать в метод после этого заменив set_state().
 async def task_add(message: Message, state: FSMContext):
 
     await state.set_state(TaskAdder.name)
     await message.answer('Введите название задачи!')
-    tasks.update_dict(user_id=str(message.from_user.id), data={})
+    await tasks.update_dict(user_id=str(message.from_user.id), data={})
 
 
 @router.message(F.text == 'Показать все задачи')

@@ -9,7 +9,7 @@ task = Task()
 async def get_name(message: Message, state: FSMContext):
     task.name = message.text
 
-    tasks.update_dict(message.from_user.id, {'name': message.text}) #добавил для сохранение задачи
+    await tasks.update_dict(message.from_user.id, {'name': message.text}) #добавил для сохранение задачи
 
     await state.set_state(TaskAdder.description)
     await message.answer('Введите описание задачи!')
@@ -17,7 +17,7 @@ async def get_name(message: Message, state: FSMContext):
 async def get_description(message: Message, state: FSMContext):
     task.description = message.text
 
-    tasks.update_dict(message.from_user.id, {'description': message.text}) #добавил для сохранение задачи
+    await tasks.update_dict(message.from_user.id, {'description': message.text}) #добавил для сохранение задачи
 
     await state.set_state(TaskAdder.year_start)
     await message.answer('Выберите год когда должна начаться задача',
@@ -66,7 +66,7 @@ async def get_day(callback_query: CallbackQuery, state: FSMContext):
     # Формируем строку даты
     task.start_date = datetime.strptime(f"{day}.{month}.{year}", "%d.%m.%Y")
 
-    tasks.update_dict(callback_query.from_user.id,
+    await tasks.update_dict(callback_query.from_user.id,
                       {'start_date': str(datetime.strptime(f"{day}.{month}.{year}", "%d.%m.%Y"))}) #добавил для сохранение задачи
 
     print(task.start_date)
@@ -128,7 +128,7 @@ async def get_day(callback_query: CallbackQuery, state: FSMContext):
     task.finish_date = datetime.strptime(f"{day}.{month}.{year}", "%d.%m.%Y")
 
 
-    tasks.update_dict(callback_query.from_user.id,
+    await tasks.update_dict(callback_query.from_user.id,
                       {'finish_date': str(datetime.strptime(f"{day}.{month}.{year}", "%d.%m.%Y"))}) #добавил для сохранение задачи
 
     print(task.finish_date)
@@ -142,14 +142,22 @@ async def get_day(callback_query: CallbackQuery, state: FSMContext):
 async def get_priority(callback_query: CallbackQuery, state: FSMContext):
     task.priority = await kb.get_text_inline_button(callback_query)
 
-    tasks.update_dict(callback_query.from_user.id, {'priority': await kb.get_text_inline_button(callback_query)})
+    await tasks.update_dict(callback_query.from_user.id, {'priority': await kb.get_text_inline_button(callback_query)})
     
-    print(tasks.convert_to_json() + '\n')
+    print(await tasks.convert_to_json() + '\n')
+
     print(await get_info_for_add(callback_query, task))
 
+    # async with aiohttp.ClientSession() as session:
+    #     async with session.post(API_URL, json=await get_info_for_add(callback_query, task)) as response:
+    #         await send_message_by_status_code_for_add(callback_query, response)
+
     async with aiohttp.ClientSession() as session:
-        async with session.post(API_URL, json=await get_info_for_add(callback_query, task)) as response:
+        async with session.post(API_URL, json=await tasks.find_element_by_user_id(callback_query.from_user.id)) as response:
             await send_message_by_status_code_for_add(callback_query, response)
+
+
+            
     await state.clear()
     await callback_query.message.delete()
     print(task.name, task.description, task.start_date, task.finish_date, task.priority)
