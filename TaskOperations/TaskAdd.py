@@ -4,20 +4,17 @@ from BotManager import (StateFilter, TaskAdder, Message, FSMContext, CallbackQue
 from Task import Task
 
 router = Router()
-task = Task()
 @router.message(StateFilter(TaskAdder.name))
 async def get_name(message: Message, state: FSMContext):
-    task.name = message.text
 
-    await tasks.update_dict(message.from_user.id, {'name': message.text}) #добавил для сохранение задачи
+    await tasks.update_dict(str(message.from_user.id), {'name': message.text}) #добавил для сохранение задачи
 
     await state.set_state(TaskAdder.description)
     await message.answer('Введите описание задачи!')
 @router.message(StateFilter(TaskAdder.description))
 async def get_description(message: Message, state: FSMContext):
-    task.description = message.text
 
-    await tasks.update_dict(message.from_user.id, {'description': message.text}) #добавил для сохранение задачи
+    await tasks.update_dict(str(message.from_user.id), {'description': message.text}) #добавил для сохранение задачи
 
     await state.set_state(TaskAdder.year_start)
     await message.answer('Выберите год когда должна начаться задача',
@@ -25,7 +22,6 @@ async def get_description(message: Message, state: FSMContext):
 @router.callback_query(StateFilter(TaskAdder.year_start))
 async def get_year(callback_query: CallbackQuery, state: FSMContext):
     year = await kb.get_text_inline_button(callback_query)  # Дожидаемся выполнения асинхронной функции
-    print(f"year: {year}")  # Сохраняем год в состояние
     await state.update_data(year_start=year)  # Сохраняем год
 
     await callback_query.message.edit_text(
@@ -37,7 +33,7 @@ async def get_year(callback_query: CallbackQuery, state: FSMContext):
 @router.callback_query(StateFilter(TaskAdder.month_start))
 async def get_month(callback_query: CallbackQuery, state: FSMContext):
     month = await kb.get_text_inline_button(callback_query)  # Дожидаемся выполнения
-    print(f"month: {month}")  # Сохраняем месяц в состояние
+    # print(f"month: {month}")  # Сохраняем месяц в состояние
 
     await state.update_data(month_start=month)  # Сохраняем месяц
 
@@ -51,7 +47,7 @@ async def get_month(callback_query: CallbackQuery, state: FSMContext):
 @router.callback_query(StateFilter(TaskAdder.day_start))
 async def get_day(callback_query: CallbackQuery, state: FSMContext):
     day = await kb.get_text_inline_button(callback_query)  # Дожидаемся выполнения
-    print(f"day: {day}")  # Сохраняем день в состояние
+
     await state.update_data(day_start=day)  # Сохраняем день
     # Получаем сохранённые данные
     data = await state.get_data()
@@ -63,13 +59,10 @@ async def get_day(callback_query: CallbackQuery, state: FSMContext):
     if not all([day, month, year]):
         await callback_query.message.answer('Некоторые данные отсутствуют. Попробуйте снова.')
         return
-    # Формируем строку даты
-    task.start_date = datetime.strptime(f"{day}.{month}.{year}", "%d.%m.%Y")
 
-    await tasks.update_dict(callback_query.from_user.id,
+    await tasks.update_dict(str(callback_query.from_user.id),
                       {'start_date': str(datetime.strptime(f"{day}.{month}.{year}", "%d.%m.%Y"))}) #добавил для сохранение задачи
 
-    print(task.start_date)
     # Переходим к следующему состоянию (например, для окончания задачи)
     await state.set_state(TaskAdder.year_finish)
     await callback_query.message.edit_text(
@@ -78,11 +71,9 @@ async def get_day(callback_query: CallbackQuery, state: FSMContext):
     )
 
 
-
 @router.callback_query(StateFilter(TaskAdder.year_finish))
 async def get_year(callback_query: CallbackQuery, state: FSMContext):
     year = await kb.get_text_inline_button(callback_query)  # Дожидаемся выполнения асинхронной функции
-    print(f"year: {year}")  # Сохраняем год в состояние
 
     await state.update_data(year_finish=year)  # Сохраняем год
 
@@ -96,7 +87,6 @@ async def get_year(callback_query: CallbackQuery, state: FSMContext):
 @router.callback_query(StateFilter(TaskAdder.month_finish))
 async def get_month(callback_query: CallbackQuery, state: FSMContext):
     month = await kb.get_text_inline_button(callback_query)  # Дожидаемся выполнения
-    print(f"month: {month}")  # Сохраняем месяц в состояние
 
     await state.update_data(month_finish=month)  # Сохраняем месяц
 
@@ -110,10 +100,8 @@ async def get_month(callback_query: CallbackQuery, state: FSMContext):
 @router.callback_query(StateFilter(TaskAdder.day_finish))
 async def get_day(callback_query: CallbackQuery, state: FSMContext):
     day = await kb.get_text_inline_button(callback_query)  # Дожидаемся выполнения
-    print(f"day: {day}")  # Сохраняем день в состояние
 
     await state.update_data(day_finish=day)  # Сохраняем день
-
 
     data = await state.get_data()
 
@@ -125,13 +113,8 @@ async def get_day(callback_query: CallbackQuery, state: FSMContext):
         await callback_query.message.answer('Некоторые данные отсутствуют. Попробуйте снова.')
         return
 
-    task.finish_date = datetime.strptime(f"{day}.{month}.{year}", "%d.%m.%Y")
-
-
-    await tasks.update_dict(callback_query.from_user.id,
+    await tasks.update_dict(str(callback_query.from_user.id),
                       {'finish_date': str(datetime.strptime(f"{day}.{month}.{year}", "%d.%m.%Y"))}) #добавил для сохранение задачи
-
-    print(task.finish_date)
 
     await state.set_state(TaskAdder.priority)
     await callback_query.message.edit_text(
@@ -140,24 +123,13 @@ async def get_day(callback_query: CallbackQuery, state: FSMContext):
     )
 @router.callback_query(TaskAdder.priority)
 async def get_priority(callback_query: CallbackQuery, state: FSMContext):
-    task.priority = await kb.get_text_inline_button(callback_query)
 
-    await tasks.update_dict(callback_query.from_user.id, {'priority': await kb.get_text_inline_button(callback_query)})
+    await tasks.update_dict(str(callback_query.from_user.id), {'priority': await kb.get_text_inline_button(callback_query)})
     
-    print(await tasks.convert_to_json() + '\n')
-
-    print(await get_info_for_add(callback_query, task))
-
-    # async with aiohttp.ClientSession() as session:
-    #     async with session.post(API_URL, json=await get_info_for_add(callback_query, task)) as response:
-    #         await send_message_by_status_code_for_add(callback_query, response)
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(API_URL, json=await tasks.find_element_by_user_id(callback_query.from_user.id)) as response:
+        async with session.post(API_URL, json=await tasks.find_element_by_user_id(str(callback_query.from_user.id))) as response:
             await send_message_by_status_code_for_add(callback_query, response)
 
-
-            
-    await state.clear()
     await callback_query.message.delete()
-    print(task.name, task.description, task.start_date, task.finish_date, task.priority)
+    print(await tasks.find_element_by_user_id(str(callback_query.from_user.id)))

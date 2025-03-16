@@ -9,7 +9,7 @@ class SaveTask(Filter):
     :param key (str): ID пользователя\n
     :param value (dict): остальные данные по типу: <b>user_id, task_name, task_description, start_date_task, end_date_task </b>и<b> priority</b>
     '''
-    async def __init__(self):
+    def __init__(self):
         self.tasks = {str: {}}
         del self.tasks[str]
 

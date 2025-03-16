@@ -24,7 +24,7 @@ async def task_add(message: Message, state: FSMContext):
 
     await state.set_state(TaskAdder.name)
     await message.answer('Введите название задачи!')
-    await tasks.update_dict(user_id=str(message.from_user.id), data={})
+    await tasks.update_dict(str(message.from_user.id), {'user_id': str(message.from_user.id)})
 
 
 @router.message(F.text == 'Показать все задачи')
