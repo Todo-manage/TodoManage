@@ -4,9 +4,10 @@ from BotManager import router
 from TaskOperations.TaskAdd import router as router_add
 from TaskOperations.TaskDelete import router as router_delete
 from TaskOperations.TaskUpdate import router as router_update
-
 async def main():
-    bot = Bot(token='7559173892:AAGF9i5R8FiGhdM6M4UpjycTWDa8ku2Fyc8')
+    file = open('Password.txt', 'r')
+    bot = Bot(token=str(file.read()))
+    file.close()
     dp = Dispatcher()
     dp.include_router(router)
     dp.include_router(router_add)
