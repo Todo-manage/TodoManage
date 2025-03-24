@@ -1,9 +1,11 @@
 from Methods.MethodsForAddAction import *
 from BotManager import (StateFilter, TaskAdder, Message, FSMContext, CallbackQuery, kb,
-                        datetime, API_URL, Router, aiohttp, tasks, F)
+                        datetime, API_URL, Router, aiohttp, tasks)
+import calendar
 from Task import Task
 
 router = Router()
+year = ''
 @router.message(StateFilter(TaskAdder.name))
 async def get_name(message: Message, state: FSMContext):
 
@@ -23,6 +25,8 @@ async def get_description(message: Message, state: FSMContext):
 async def get_year(callback_query: CallbackQuery, state: FSMContext):
     year = await kb.get_text_inline_button(callback_query)  # Дожидаемся выполнения асинхронной функции
     await state.update_data(year_start=year)  # Сохраняем год
+    print(year)
+    
 
     await callback_query.message.edit_text(
         text="Выберите месяц начала задачи",
@@ -34,7 +38,7 @@ async def get_year(callback_query: CallbackQuery, state: FSMContext):
 async def get_month(callback_query: CallbackQuery, state: FSMContext):
     month = await kb.get_text_inline_button(callback_query)  # Дожидаемся выполнения
     # print(f"month: {month}")  # Сохраняем месяц в состояние
-
+    print(month)
     await state.update_data(month_start=month)  # Сохраняем месяц
 
     await callback_query.message.edit_text(
@@ -89,7 +93,7 @@ async def get_month(callback_query: CallbackQuery, state: FSMContext):
     month = await kb.get_text_inline_button(callback_query)  # Дожидаемся выполнения
 
     await state.update_data(month_finish=month)  # Сохраняем месяц
-
+    print('asdasasdasdasdasdasda'+ year +'and'+ month)
     await callback_query.message.edit_text(
         text="Выберите день завершения задачи",
         reply_markup=kb.inlineMarkup_days

@@ -1,6 +1,8 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from datetime import datetime
+import calendar
+
 
 replyMarkup = ReplyKeyboardMarkup(
     keyboard=[[KeyboardButton(text="Добавить задачу")],
@@ -19,10 +21,19 @@ inlineMarkup_days = InlineKeyboardMarkup(inline_keyboard=[
     for i in range(1, 32, 5)  # Группируем кнопки по строкам (5 кнопок на строку)
 ])
 
+# def inlineMarkup_days(year: int, month: int):
+#     max_days = max(calendar.monthcalendar(year, month)[-1])
+#     keyboard = InlineKeyboardMarkup(inline_keyboard=[
+#     [InlineKeyboardButton(text=f"{j}", callback_data=f"Days{j}") for j in range(i, min(i + 5, max_days+1))]
+#     for i in range(1, max_days+1, 5)])  # Группируем кнопки по строкам (5 кнопок на строку)
+
+#     return keyboard
+
+
 
 inlineMarkup_months = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text=f"{j}", callback_data=f"Month{j}") for j in range(i, min(i + 5, 13))]
-    for i in range(1, 32, 5)  # Группируем кнопки по строкам (5 кнопок на строку)
+    for i in range(1, 13, 5)  # Группируем кнопки по строкам (5 кнопок на строку)
 ])
 
 
